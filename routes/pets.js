@@ -1,9 +1,17 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const { validationMid } = require("../middlewares/validation.js");
+const S = require("fluent-json-schema");
+const { getAllPets } = require("../data/db");
 
 /* GET pets listing. */
-router.get("/", function (req, res, next) {
-	res.send("respond with a resource");
+router.get("/", async (req, res, next) => {
+	try {
+		const petsList = await getAllPets();
+		res.send(petsList);
+	} catch (error) {
+		next(error);
+	}
 });
 
 module.exports = router;
