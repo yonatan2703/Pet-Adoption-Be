@@ -31,7 +31,7 @@ router.post("/signup", validationMid(signUpSchema), async (req, res, next) => {
 		try {
 			const queryResult = await addUser(req.body);
 			console.log(queryResult);
-			res.send("sign up to the site");
+			res.send(queryResult);
 		} catch (err) {
 			next(err);
 		}
