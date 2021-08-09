@@ -1,4 +1,3 @@
-const mysql = require("mysql");
 const bcrypt = require("bcrypt");
 const { query } = require("./db");
 

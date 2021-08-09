@@ -6,7 +6,11 @@ const db = mysql.createConnection({
 	password: "27031997",
 	database: "petShop",
 });
-exports.db = db;
+
+db.connect((err) => {
+	if (err) throw err;
+	console.log("mysql connected");
+});
 
 const query = (queryText) => {
 	return new Promise((resolve, reject) => {

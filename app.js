@@ -6,14 +6,9 @@ const logger = require("morgan");
 const cors = require("cors");
 const { db } = require("./data/db");
 
-db.connect((err) => {
-	if (err) throw err;
-	console.log("mysql connected");
-});
-
 const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
-const petsRouter = require("./routes/pets");
+const usersRouter = require("./routes/user");
+const petsRouter = require("./routes/pet");
 const databaseRouter = require("./routes/database");
 
 const app = express();
@@ -32,8 +27,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/pets", petsRouter);
+app.use("/user", usersRouter);
+app.use("/pet", petsRouter);
 app.use("/database", databaseRouter);
 
 // catch 404 and forward to error handler

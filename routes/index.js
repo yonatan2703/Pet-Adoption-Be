@@ -4,7 +4,8 @@ const {
 	signUpValidation,
 	loginValidation,
 } = require("../middlewares/usersValidation.js");
-const { addUser, query, loginUser } = require("../data/db");
+const { query } = require("../data/db");
+const { addUser, loginUser } = require("../data/usersDb");
 
 // sign up
 router.post("/signup", signUpValidation(), async (req, res, next) => {
@@ -35,7 +36,7 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 
 // login
 router.post("/login", loginValidation(), async (req, res, next) => {
-	const { password, email } = req.body;
+	const { email, password } = req.body;
 	try {
 		const logged = await loginUser(email, password);
 		res.send(logged);
