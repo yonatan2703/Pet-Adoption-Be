@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { validationMid } = require("../middlewares/validation.js");
 const S = require("fluent-json-schema");
-const { getAllPets } = require("../data/db");
+const { getAllPets } = require("../data/petsDb");
 
 /* GET pets listing. */
 router.get("/", async (req, res, next) => {

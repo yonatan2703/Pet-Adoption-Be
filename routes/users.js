@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { validationMid } = require("../middlewares/validation.js");
 const S = require("fluent-json-schema");
-const { getAllUsers } = require("../data/db");
+const { getAllUsers } = require("../data/usersDb");
 
 /* GET users listing. */
 router.get("/", async (req, res, next) => {

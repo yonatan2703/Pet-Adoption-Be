@@ -1,20 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { validationMid } = require("../middlewares/validation.js");
-const S = require("fluent-json-schema");
+const {
+	signUpValidation,
+	loginValidation,
+} = require("../middlewares/usersValidation.js");
 const { addUser, query, loginUser } = require("../data/db");
 
 // sign up
-const signUpSchema = S.object()
-	.prop("email", S.string().required())
-	.prop("password", S.string().minLength(8).required())
-	.prop("passwordValidation", S.string().minLength(8).required())
-	.prop("fName", S.string().required())
-	.prop("lName", S.string().required())
-	.prop("phone", S.string().minLength(9).maxLength(11).required())
-	.valueOf();
-
-router.post("/signup", validationMid(signUpSchema), async (req, res, next) => {
+router.post("/signup", signUpValidation(), async (req, res, next) => {
 	const { password, passwordValidation, email } = req.body;
 	if (password !== passwordValidation) {
 		res.send("Passwords don't match");
@@ -41,12 +34,7 @@ router.post("/signup", validationMid(signUpSchema), async (req, res, next) => {
 });
 
 // login
-const loginSchema = S.object()
-	.prop("email", S.string().required())
-	.prop("password", S.string().minLength(8).required())
-	.valueOf();
-
-router.post("/login", validationMid(loginSchema), async (req, res, next) => {
+router.post("/login", loginValidation(), async (req, res, next) => {
 	const { password, email } = req.body;
 	try {
 		const logged = await loginUser(email, password);
