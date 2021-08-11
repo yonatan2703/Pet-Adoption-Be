@@ -4,8 +4,9 @@ const {
 	signUpValidation,
 	loginValidation,
 } = require("../middlewares/usersValidation.js");
-const { query } = require("../data/db");
+const { query, SQL } = require("../data/db");
 const { addUser, loginUser } = require("../data/usersDb");
+const { sign } = require("../lib/auth");
 
 // sign up
 router.post("/signup", signUpValidation(), async (req, res, next) => {
@@ -16,7 +17,7 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 	}
 	try {
 		const emailCheck = await query(
-			`SELECT email FROM users WHERE email = "${email}";`
+			SQL`SELECT email FROM users WHERE email = ${email};`
 		);
 		if (emailCheck.length) {
 			res.send("email already taken");
@@ -38,8 +39,9 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 router.post("/login", loginValidation(), async (req, res, next) => {
 	const { email, password } = req.body;
 	try {
-		const logged = await loginUser(email, password);
-		res.send(logged);
+		const result = await loginUser(email, password);
+		res.set("token", result.token);
+		res.send(result);
 	} catch (err) {
 		next(err);
 	}

@@ -1,4 +1,6 @@
 const mysql = require("mysql");
+const SQL = require("@nearform/sql");
+exports.SQL = SQL;
 
 const db = mysql.createConnection({
 	host: "localhost",
@@ -50,7 +52,7 @@ exports.createPetsTable = createPetsTable;
 const createUsersTable = async () => {
 	try {
 		const queryResult = await query(
-			`CREATE TABLE users(user_id int AUTO_INCREMENT, email VARCHAR(255), password VARCHAR(255), first_name VARCHAR(50), last_name VARCHAR(255), phone VARCHAR(12), bio VARCHAR(400), PRIMARY KEY (user_id));`
+			`CREATE TABLE users(user_id int AUTO_INCREMENT, email VARCHAR(255), password VARCHAR(255), first_name VARCHAR(50), last_name VARCHAR(255), phone VARCHAR(12), bio VARCHAR(400), role VARCHAR(12), PRIMARY KEY (user_id));`
 		);
 		return queryResult;
 	} catch (err) {

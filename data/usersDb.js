@@ -1,9 +1,10 @@
 const bcrypt = require("bcrypt");
-const { query } = require("./db");
+const { query, SQL } = require("./db");
+const { sign } = require("../lib/auth");
 
 const getAllUsers = async () => {
 	try {
-		const queryResult = await query(`SELECT * FROM users;`);
+		const queryResult = await query(SQL`SELECT * FROM users;`);
 		return queryResult;
 	} catch (err) {
 		return err;
@@ -20,7 +21,7 @@ const addUser = async (user) => {
 				if (err) reject(err);
 				try {
 					const queryResult = await query(
-						`INSERT INTO users (email, password, first_name, last_name, phone, bio) VALUES ("${email}", "${hash}", "${fName}", "${lName}", "${phone}", null);`
+						SQL`INSERT INTO users (email, password, first_name, last_name, phone, bio, role) VALUES (${email}, ${hash}, ${fName}, ${lName}, ${phone}, null, "user");`
 					);
 					resolve({
 						result: queryResult,
@@ -38,22 +39,24 @@ exports.addUser = addUser;
 const loginUser = (email, password) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const hashedPass = await query(
-				`SELECT password FROM users WHERE email = "${email}";`
+			const user = await query(
+				SQL`SELECT * FROM users WHERE email = ${email};`
 			);
-			if (hashedPass.length === 0)
-				resolve({ result: false, message: "wrong password or email" });
-			bcrypt.compare(password, hashedPass[0].password, (err, result) => {
+			if (user.length === 0)
+				resolve({ logged: false, message: "wrong password or email" });
+			bcrypt.compare(password, user[0].password, (err, logged) => {
 				if (err) {
 					reject(err);
 				} else {
-					if (result)
+					if (logged)
 						resolve({
-							result: result,
+							logged: true,
 							message: "you have logged in",
+							token: sign({ userId: user.user_id }),
+							data: user,
 						});
 					resolve({
-						result: result,
+						logged: false,
 						message: "wrong password or email",
 					});
 				}

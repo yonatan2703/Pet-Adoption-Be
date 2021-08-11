@@ -1,8 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { addPetValidation } = require("../middlewares/petsValidation.js");
+const {
+	addPetValidation,
+	adoptFosterPetValidation,
+} = require("../middlewares/petsValidation.js");
 const S = require("fluent-json-schema");
-const { getPets, addPet, getPetById, editPetById } = require("../data/petsDb");
+const {
+	getPets,
+	addPet,
+	getPetById,
+	editPetById,
+	adoptFosterPet,
+} = require("../data/petsDb");
 
 /* GET pets listing. */
 router.get("/", async (req, res, next) => {
@@ -45,5 +54,20 @@ router.put("/:id", async (req, res, next) => {
 		next(error);
 	}
 });
+
+// adopt/foster pet
+router.post(
+	"/:id/adopt",
+	adoptFosterPetValidation(),
+	async (req, res, next) => {
+		const { id } = req.params;
+		try {
+			const result = await adoptFosterPet(id, req.body);
+			res.send(result);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
 
 module.exports = router;

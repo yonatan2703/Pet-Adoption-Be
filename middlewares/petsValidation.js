@@ -17,3 +17,10 @@ const petSchema = S.object()
 	.valueOf();
 const addPetValidation = () => validationMid(petSchema);
 exports.addPetValidation = addPetValidation;
+
+const adoptFosterSchema = S.object()
+	.prop("ownerId", S.number().required())
+	.prop("adoptionStatus", S.string().required())
+	.valueOf();
+const adoptFosterPetValidation = () => validationMid(adoptFosterSchema);
+exports.adoptFosterPetValidation = adoptFosterPetValidation;
