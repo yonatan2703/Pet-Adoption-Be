@@ -5,13 +5,14 @@ const S = require("fluent-json-schema");
 const { getAllUsers, makeAdmin } = require("../data/usersDb");
 const { authenticate } = require("../middlewares/authentication");
 const { adminCheck } = require("../middlewares/adminCheck");
-const fs = require("fs");
+const { urlFromCloudinary } = require("../middlewares/urlFromCloudinary");
 const { upload } = require("../lib/uploadFiles");
 
 /* GET users listing. */
 router.get("/", authenticate(), adminCheck(), async (req, res, next) => {
 	try {
 		const usersList = await getAllUsers();
+		console.log(usersList);
 		res.send(usersList);
 	} catch (error) {
 		next(error);
@@ -37,9 +38,10 @@ router.post(
 	authenticate(),
 	adminCheck(),
 	upload.single("img"),
+	urlFromCloudinary(),
 	async (req, res, next) => {
-		const fileUrl = "http://localhost:5050/" + req.file.path;
-		res.send({ fileUrl });
+		const img = req.body.imageUrl;
+		res.send({ img });
 	}
 );
 

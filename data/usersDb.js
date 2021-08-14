@@ -4,7 +4,9 @@ const { sign } = require("../lib/auth");
 
 const getAllUsers = async () => {
 	try {
-		const queryResult = await query(SQL`SELECT * FROM users;`);
+		const queryResult = await query(
+			SQL`SELECT user_id, email, first_name, last_name, phone, bio, role FROM users;`
+		);
 		return queryResult;
 	} catch (err) {
 		return err;
@@ -48,13 +50,15 @@ const loginUser = (email, password) => {
 				if (err) {
 					reject(err);
 				} else {
-					if (logged)
+					if (logged) {
+						const { password, ...rest } = user;
 						resolve({
 							logged: true,
 							message: "you have logged in",
 							token: sign({ userId: user.user_id }),
-							data: user,
+							data: rest,
 						});
+					}
 					resolve({
 						logged: false,
 						message: "wrong password or email",

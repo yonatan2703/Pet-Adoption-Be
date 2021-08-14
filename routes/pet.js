@@ -15,8 +15,9 @@ const {
 	savePet,
 	returnPet,
 	removedSavedPet,
+	uploadPetPic,
 } = require("../data/petsDb");
-const fs = require("fs");
+const { urlFromCloudinary } = require("../middlewares/urlFromCloudinary");
 const { upload } = require("../lib/uploadFiles");
 
 /* GET pets listing. */
@@ -36,9 +37,8 @@ router.post(
 	adminCheck(),
 	addPetValidation(),
 	async (req, res, next) => {
-		const { userId } = req.decoded;
 		try {
-			const result = await addPet(req.body, userId);
+			const result = await addPet(req.body);
 			res.send(result);
 		} catch (error) {
 			next(error);
@@ -60,9 +60,8 @@ router.get("/:id", async (req, res, next) => {
 // edit pet
 router.put("/:id", authenticate(), adminCheck(), async (req, res, next) => {
 	const { id } = req.params;
-	const { userId } = req.decoded;
 	try {
-		const petResult = await editPetById(id, req.body, userId);
+		const petResult = await editPetById(id, req.body);
 		res.send(petResult);
 	} catch (error) {
 		next(error);
@@ -119,5 +118,23 @@ router.delete("/:id/save", authenticate(), async (req, res, next) => {
 		next(error);
 	}
 });
+
+// upload pet img
+router.put(
+	"/:id/img",
+	authenticate(),
+	adminCheck(),
+	upload.single("img"),
+	urlFromCloudinary(),
+	async (req, res, next) => {
+		const { id } = req.params;
+		try {
+			const petResult = await uploadPetPic(id, req.body.imageUrl);
+			res.send(petResult);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
 
 module.exports = router;

@@ -53,7 +53,7 @@ const getPets = async (params) => {
 };
 exports.getPets = getPets;
 
-const addPet = async (pet, userId) => {
+const addPet = async (pet) => {
 	const {
 		type,
 		name,
@@ -61,7 +61,6 @@ const addPet = async (pet, userId) => {
 		height,
 		weight,
 		color,
-		imageUrl,
 		imageAlt,
 		bio,
 		dietaryRestrictions,
@@ -70,7 +69,7 @@ const addPet = async (pet, userId) => {
 	} = pet;
 	try {
 		const queryResult = await query(
-			SQL`INSERT INTO pets (type, name, adoption_status, height, weight, color, bio, hypoallergenic, dietary_restrictions, breed, owner_id, image_url, image_alt) VALUES (${type}, ${name}, ${adoptionStatus}, ${+height}, ${+weight}, ${color}, ${bio}, ${hypoallergenic}, ${dietaryRestrictions}, ${breed}, null, ${imageUrl}, ${imageAlt});`
+			SQL`INSERT INTO pets (type, name, adoption_status, height, weight, color, bio, hypoallergenic, dietary_restrictions, breed, owner_id, image_alt) VALUES (${type}, ${name}, ${adoptionStatus}, ${+height}, ${+weight}, ${color}, ${bio}, ${hypoallergenic}, ${dietaryRestrictions}, ${breed}, null, ${imageAlt});`
 		);
 		return { result: queryResult, message: "pet added" };
 	} catch (err) {
@@ -99,7 +98,7 @@ const getPetById = async (id) => {
 };
 exports.getPetById = getPetById;
 
-const editPetById = async (id, pet, userId) => {
+const editPetById = async (id, pet) => {
 	const {
 		type,
 		name,
@@ -107,7 +106,6 @@ const editPetById = async (id, pet, userId) => {
 		height,
 		weight,
 		color,
-		imageUrl,
 		imageAlt,
 		bio,
 		dietaryRestrictions,
@@ -115,13 +113,8 @@ const editPetById = async (id, pet, userId) => {
 		breed,
 	} = pet;
 	try {
-		const updates = [];
-		if (imageUrl) updates.push(SQL`image_url = ${imageUrl},`);
 		const queryResult = await query(
-			SQL`UPDATE pets SET type = "${type}", name = "${name}", adoption_status = "${adoptionStatus}", height = ${+height}, weight = ${+weight}, color = "${color}", bio = "${bio}", hypoallergenic = ${hypoallergenic}, dietary_restrictions = "${dietaryRestrictions}", breed = "${breed}", ${SQL.glue(
-				updates,
-				" , "
-			)} image_alt = "${imageAlt}" WHERE pet_id = ${+id};`
+			SQL`UPDATE pets SET type = "${type}", name = "${name}", adoption_status = "${adoptionStatus}", height = ${+height}, weight = ${+weight}, color = "${color}", bio = "${bio}", hypoallergenic = ${hypoallergenic}, dietary_restrictions = "${dietaryRestrictions}", breed = "${breed}", image_alt = "${imageAlt}" WHERE pet_id = ${+id};`
 		);
 
 		return { result: queryResult, message: "pet updated" };
@@ -195,3 +188,16 @@ const removedSavedPet = async (userId, petId) => {
 	}
 };
 exports.removedSavedPet = removedSavedPet;
+
+const uploadPetPic = async (id, imageUrl) => {
+	try {
+		const queryResult = await query(
+			SQL`UPDATE pets SET image_url = ${imageUrl} WHERE pet_id = ${id};`
+		);
+
+		return { result: queryResult, message: `pet image was updated` };
+	} catch (err) {
+		return err;
+	}
+};
+exports.uploadPetPic = uploadPetPic;
