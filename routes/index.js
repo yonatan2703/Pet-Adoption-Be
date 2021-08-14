@@ -6,7 +6,7 @@ const {
 } = require("../middlewares/usersValidation.js");
 const { query, SQL } = require("../data/db");
 const { addUser, loginUser } = require("../data/usersDb");
-const { sign } = require("../lib/auth");
+const { authenticate } = require("../middlewares/authentication");
 
 // sign up
 router.post("/signup", signUpValidation(), async (req, res, next) => {
@@ -42,6 +42,21 @@ router.post("/login", loginValidation(), async (req, res, next) => {
 		const result = await loginUser(email, password);
 		res.set("token", result.token);
 		res.send(result);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.get("/login", authenticate(), async (req, res, next) => {
+	try {
+		const [user] = await query(
+			SQL`SELECT * FROM users WHERE user_id = ${+req.decoded.userId};`
+		);
+		res.send({
+			logged: true,
+			message: "you have logged in",
+			data: user,
+		});
 	} catch (err) {
 		next(err);
 	}

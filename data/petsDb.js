@@ -53,7 +53,7 @@ const getPets = async (params) => {
 };
 exports.getPets = getPets;
 
-const addPet = async (pet) => {
+const addPet = async (pet, userId) => {
 	const {
 		type,
 		name,
@@ -99,7 +99,7 @@ const getPetById = async (id) => {
 };
 exports.getPetById = getPetById;
 
-const editPetById = async (id, pet) => {
+const editPetById = async (id, pet, userId) => {
 	const {
 		type,
 		name,
@@ -153,3 +153,45 @@ const adoptFosterPet = async (id, req) => {
 	}
 };
 exports.adoptFosterPet = adoptFosterPet;
+
+const returnPet = async (id) => {
+	try {
+		const queryResult = await query(
+			SQL`UPDATE pets SET owner_id = null, adoption_status = "available" WHERE pet_id = ${id};`
+		);
+
+		return { result: queryResult, message: `pet was returned to shop` };
+	} catch (err) {
+		return err;
+	}
+};
+exports.returnPet = returnPet;
+
+const savePet = async (userId, petId) => {
+	try {
+		const queryResult = await query(
+			SQL`INSERT INTO saved_pets (owner_id, pet_id) VALUES (${+userId}, ${+petId});`
+		);
+
+		return { result: queryResult, message: `pet was saved` };
+	} catch (err) {
+		return err;
+	}
+};
+exports.savePet = savePet;
+
+const removedSavedPet = async (userId, petId) => {
+	try {
+		const queryResult = await query(
+			SQL`DELETE FROM saved_pets WHERE owner_id = ${+userId} AND pet_id = ${+petId};`
+		);
+
+		return {
+			result: queryResult,
+			message: `pet was removed from saved pets`,
+		};
+	} catch (err) {
+		return err;
+	}
+};
+exports.removedSavedPet = removedSavedPet;

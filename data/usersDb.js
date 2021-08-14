@@ -12,7 +12,7 @@ const getAllUsers = async () => {
 };
 exports.getAllUsers = getAllUsers;
 
-const addUser = async (user) => {
+const addUser = (user) => {
 	const { email, password, fName, lName, phone } = user;
 	return new Promise(async (resolve, reject) => {
 		bcrypt.genSalt(11, (err, salt) => {
@@ -39,12 +39,12 @@ exports.addUser = addUser;
 const loginUser = (email, password) => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const user = await query(
+			const [user] = await query(
 				SQL`SELECT * FROM users WHERE email = ${email};`
 			);
-			if (user.length === 0)
+			if (!user)
 				resolve({ logged: false, message: "wrong password or email" });
-			bcrypt.compare(password, user[0].password, (err, logged) => {
+			bcrypt.compare(password, user.password, (err, logged) => {
 				if (err) {
 					reject(err);
 				} else {
@@ -67,3 +67,18 @@ const loginUser = (email, password) => {
 	});
 };
 exports.loginUser = loginUser;
+
+const makeAdmin = async (userId) => {
+	try {
+		const queryResult = await query(
+			SQL`UPDATE users SET role = "admin" WHERE user_id = ${userId};`
+		);
+		return {
+			result: queryResult,
+			message: "user is now admin",
+		};
+	} catch (err) {
+		return err;
+	}
+};
+exports.makeAdmin = makeAdmin;
