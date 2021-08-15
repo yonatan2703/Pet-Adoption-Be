@@ -16,6 +16,7 @@ const {
 	returnPet,
 	removedSavedPet,
 	uploadPetPic,
+	getUsersPets,
 } = require("../data/petsDb");
 const { urlFromCloudinary } = require("../middlewares/urlFromCloudinary");
 const { upload } = require("../lib/uploadFiles");
@@ -75,8 +76,9 @@ router.post(
 	adoptFosterPetValidation(),
 	async (req, res, next) => {
 		const { id } = req.params;
+		const { userId } = req.decoded;
 		try {
-			const result = await adoptFosterPet(id, req.body);
+			const result = await adoptFosterPet(id, req.body, userId);
 			res.send(result);
 		} catch (error) {
 			next(error);
@@ -136,5 +138,16 @@ router.put(
 		}
 	}
 );
+
+// get pets by user id
+router.get("/user/:id", async (req, res, next) => {
+	const { id } = req.params;
+	try {
+		const petResult = await getUsersPets(id);
+		res.send(petResult);
+	} catch (error) {
+		next(error);
+	}
+});
 
 module.exports = router;

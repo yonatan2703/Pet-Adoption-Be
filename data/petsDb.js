@@ -124,8 +124,8 @@ const editPetById = async (id, pet) => {
 };
 exports.editPetById = editPetById;
 
-const adoptFosterPet = async (id, req) => {
-	const { ownerId, adoptionStatus } = req;
+const adoptFosterPet = async (id, req, userId) => {
+	const { adoptionStatus } = req;
 	try {
 		const queryResult = await query(
 			SQL`SELECT adoption_status FROM pets WHERE pet_id = ${+id};`
@@ -137,7 +137,7 @@ const adoptFosterPet = async (id, req) => {
 	}
 	try {
 		const queryResult = await query(
-			SQL`UPDATE pets SET owner_id = ${ownerId}, adoption_status = ${adoptionStatus} WHERE pet_id = ${id};`
+			SQL`UPDATE pets SET owner_id = ${userId}, adoption_status = ${adoptionStatus} WHERE pet_id = ${id};`
 		);
 
 		return { result: queryResult, message: `pet ${adoptionStatus}` };
@@ -201,3 +201,23 @@ const uploadPetPic = async (id, imageUrl) => {
 	}
 };
 exports.uploadPetPic = uploadPetPic;
+
+const getUsersPets = async (id) => {
+	try {
+		const ownedPets = await query(
+			SQL`SELECT * FROM pets WHERE owner_id = ${id};`
+		);
+		const savedPets = await query(
+			SQL`SELECT * FROM pets WHERE pet_id IN (SELECT pet_id FROM saved_pets WHERE owner_id = ${id});`
+		);
+
+		return {
+			ownedPets: ownedPets,
+			savedPets: savedPets,
+			message: `saved and owned pets`,
+		};
+	} catch (err) {
+		return err;
+	}
+};
+exports.getUsersPets = getUsersPets;

@@ -44,8 +44,7 @@ const loginUser = (email, password) => {
 			const [user] = await query(
 				SQL`SELECT * FROM users WHERE email = ${email};`
 			);
-			if (!user)
-				resolve({ logged: false, message: "wrong password or email" });
+			if (!user) resolve({ logged: false, message: "wrong email" });
 			bcrypt.compare(password, user.password, (err, logged) => {
 				if (err) {
 					reject(err);
@@ -61,7 +60,7 @@ const loginUser = (email, password) => {
 					}
 					resolve({
 						logged: false,
-						message: "wrong password or email",
+						message: "wrong password",
 					});
 				}
 			});
@@ -86,3 +85,85 @@ const makeAdmin = async (userId) => {
 	}
 };
 exports.makeAdmin = makeAdmin;
+
+const unAdmin = async (userId) => {
+	try {
+		const queryResult = await query(
+			SQL`UPDATE users SET role = "user" WHERE user_id = ${userId};`
+		);
+		return {
+			result: queryResult,
+			message: "user is no longer admin",
+		};
+	} catch (err) {
+		return err;
+	}
+};
+exports.unAdmin = unAdmin;
+
+const getUserById = async (userId) => {
+	try {
+		const [queryResult] = await query(
+			SQL`SELECT * FROM users WHERE user_id = ${userId};`
+		);
+		if (queryResult) {
+			const { password, ...rest } = queryResult;
+			return {
+				data: rest,
+				message: "user's details",
+			};
+		} else {
+			return {
+				message: "user not found",
+			};
+		}
+	} catch (err) {
+		return err;
+	}
+};
+exports.getUserById = getUserById;
+
+const updateUser = async (userId, userData) => {
+	const { email, password, fName, lName, phone, bio } = userData;
+	const [result] = await query(
+		SQL`SELECT * FROM users WHERE email = ${email};`
+	);
+	if (result) {
+		return {
+			message: "email already taken",
+		};
+	}
+	if (!password) {
+		try {
+			const queryResult = await query(
+				SQL`UPDATE users SET email = ${email} , first_name = ${fName}, last_name = ${lName}, phone = ${phone}, bio = ${bio} WHERE user_id = ${userId};`
+			);
+			return {
+				result: queryResult,
+				message: "updated the user",
+			};
+		} catch (err) {
+			return err;
+		}
+	}
+	return new Promise(async (resolve, reject) => {
+		bcrypt.genSalt(11, (err, salt) => {
+			if (err) reject(err);
+			bcrypt.hash(password, salt, async (err, hash) => {
+				if (err) reject(err);
+				try {
+					const queryResult = await query(
+						SQL`UPDATE users SET email = ${email} ,password = ${hash}, first_name = ${fName}, last_name = ${lName}, phone = ${phone}, bio = ${bio} WHERE user_id = ${userId};`
+					);
+					resolve({
+						result: queryResult,
+						message: "updated the user",
+					});
+				} catch (err) {
+					reject(err);
+				}
+			});
+		});
+	});
+};
+exports.updateUser = updateUser;
