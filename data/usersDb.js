@@ -126,7 +126,7 @@ exports.getUserById = getUserById;
 const updateUser = async (userId, userData) => {
 	const { email, password, fName, lName, phone, bio } = userData;
 	const [result] = await query(
-		SQL`SELECT * FROM users WHERE email = ${email};`
+		SQL`SELECT * FROM users WHERE email = ${email} AND email <> (SELECT email FROM users WHERE user_id = ${userId});`
 	);
 	if (result) {
 		return {
