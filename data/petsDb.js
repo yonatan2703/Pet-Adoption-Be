@@ -2,49 +2,38 @@ const { query, SQL } = require("./db");
 
 const getPets = async (params) => {
 	const updates = [];
+	const where = [];
 	// checking if params is empty
 	if (Object.keys(params).length !== 0) {
+		where.push(SQL`WHERE `);
 		if (params.type) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE type = ${params.type}`);
 			updates.push(SQL`type = ${params.type}`);
 		}
 		if (params.adoptionStatus) {
-			if (updates.length === 0)
-				updates.push(
-					SQL`WHERE adoption_status = ${params.adoptionStatus}`
-				);
 			updates.push(SQL`adoption_status = ${params.adoptionStatus}`);
 		}
 		if (params.name) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE name = ${params.name}`);
 			updates.push(SQL`name = ${params.name}`);
 		}
 		if (params.minHeight) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE height >= ${+params.minHeight}`);
 			updates.push(SQL`height >= ${+params.minHeight}`);
 		}
 		if (params.maxHeight) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE height <= ${+params.maxHeight}`);
 			updates.push(SQL`height <= ${+params.maxHeight}`);
 		}
 		if (params.minWeight) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE weight >= ${+params.minWeight}`);
-			whereQuery += `weight >= ${+params.minWeight}`;
+			updates.push(SQL`weight >= ${+params.minWeight}`);
 		}
 		if (params.maxWeight) {
-			if (updates.length === 0)
-				updates.push(SQL`WHERE weight <= ${+params.maxWeight}`);
 			updates.push(SQL`weight <= ${+params.maxWeight}`);
 		}
 	}
 	try {
 		const queryResult = await query(
-			SQL`SELECT * FROM pets ${SQL.glue(updates, " AND ")};`
+			SQL`SELECT * FROM pets ${SQL.glue(where)} ${SQL.glue(
+				updates,
+				" AND "
+			)};`
 		);
 		return queryResult;
 	} catch (err) {
