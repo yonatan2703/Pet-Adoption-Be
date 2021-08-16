@@ -77,7 +77,7 @@ const getPetById = async (id) => {
 				ok: true,
 				result: queryResult[0],
 			};
-		return {
+		throw {
 			ok: false,
 			message: "pet not found in database",
 		};
@@ -120,7 +120,7 @@ const adoptFosterPet = async (id, req, userId) => {
 			SQL`SELECT adoption_status FROM pets WHERE pet_id = ${+id};`
 		);
 		if (queryResult[0].adoption_status === "adopted")
-			return { result: queryResult, message: `pet already adopted` };
+			throw { result: queryResult, message: `pet already adopted` };
 	} catch (err) {
 		return err;
 	}

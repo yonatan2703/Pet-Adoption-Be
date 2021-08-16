@@ -44,13 +44,13 @@ const loginUser = (email, password) => {
 			const [user] = await query(
 				SQL`SELECT * FROM users WHERE email = ${email};`
 			);
-			if (!user) resolve({ logged: false, message: "wrong email" });
+			if (!user) reject({ logged: false, message: "wrong email" });
 			bcrypt.compare(password, user.password, (err, logged) => {
 				if (err) {
 					reject(err);
 				} else {
 					if (logged) {
-						const { password, ...rest } = user;
+						const { password, role, ...rest } = user;
 						resolve({
 							logged: true,
 							message: "you have logged in",
@@ -58,7 +58,7 @@ const loginUser = (email, password) => {
 							data: rest,
 						});
 					}
-					resolve({
+					reject({
 						logged: false,
 						message: "wrong password",
 					});
@@ -107,13 +107,13 @@ const getUserById = async (userId) => {
 			SQL`SELECT * FROM users WHERE user_id = ${userId};`
 		);
 		if (queryResult) {
-			const { password, ...rest } = queryResult;
+			const { password, role, ...rest } = queryResult;
 			return {
 				data: rest,
 				message: "user's details",
 			};
 		} else {
-			return {
+			throw {
 				message: "user not found",
 			};
 		}

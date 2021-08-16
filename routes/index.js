@@ -12,7 +12,7 @@ const { authenticate } = require("../middlewares/authentication");
 router.post("/signup", signUpValidation(), async (req, res, next) => {
 	const { password, passwordValidation, email } = req.body;
 	if (password !== passwordValidation) {
-		res.send("Passwords don't match");
+		res.status(400).send("Passwords don't match");
 		return;
 	}
 	try {
@@ -20,7 +20,7 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 			SQL`SELECT email FROM users WHERE email = ${email};`
 		);
 		if (emailCheck.length) {
-			res.send("email already taken");
+			res.status(400).send("email already taken");
 			return;
 		}
 		try {
@@ -40,7 +40,6 @@ router.post("/login", loginValidation(), async (req, res, next) => {
 	const { email, password } = req.body;
 	try {
 		const result = await loginUser(email, password);
-		res.set("token", result.token);
 		res.send(result);
 	} catch (err) {
 		next(err);
@@ -52,7 +51,7 @@ router.get("/login", authenticate(), async (req, res, next) => {
 		const [user] = await query(
 			SQL`SELECT * FROM users WHERE user_id = ${+req.decoded.userId};`
 		);
-		const { password, ...rest } = user;
+		const { password, role, ...rest } = user;
 		res.send({
 			logged: true,
 			message: "you have logged in",
