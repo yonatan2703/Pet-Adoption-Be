@@ -17,7 +17,6 @@ const addPetValidation = () => validationMid(petSchema);
 exports.addPetValidation = addPetValidation;
 
 const adoptFosterSchema = S.object()
-	.prop("ownerId", S.number().required())
 	.prop("adoption_status", S.string().required())
 	.valueOf();
 const adoptFosterPetValidation = () => validationMid(adoptFosterSchema);

@@ -126,8 +126,9 @@ const adoptFosterPet = async (id, req, userId) => {
 		const queryResult = await query(
 			SQL`UPDATE pets SET owner_id = ${userId}, adoption_status = ${adoption_status} WHERE pet_id = ${id};`
 		);
-
-		return { result: queryResult, message: `pet ${adoption_status}` };
+		if (queryResult.changedRows === 0)
+			throw { result: false, message: `pet already ${adoption_status}` };
+		return { result: true, message: `pet ${adoption_status}` };
 	} catch (err) {
 		return err;
 	}
@@ -137,10 +138,11 @@ exports.adoptFosterPet = adoptFosterPet;
 const returnPet = async (id) => {
 	try {
 		const queryResult = await query(
-			SQL`UPDATE pets SET owner_id = null, adoption_status = "available" WHERE pet_id = ${id};`
+			SQL`UPDATE pets SET owner_id = null, adoption_status = "Available" WHERE pet_id = ${id};`
 		);
-
-		return { result: queryResult, message: `pet was returned to shop` };
+		if (queryResult.changedRows === 0)
+			throw { result: false, message: `pet didn't change` };
+		return { result: true, message: `pet was returned to shop` };
 	} catch (err) {
 		return err;
 	}
@@ -152,8 +154,9 @@ const savePet = async (userId, petId) => {
 		const queryResult = await query(
 			SQL`INSERT INTO saved_pets (owner_id, pet_id) VALUES (${+userId}, ${+petId});`
 		);
-
-		return { result: queryResult, message: `pet was saved` };
+		if (queryResult.changedRows === 0)
+			throw { result: false, message: `pet was not saved` };
+		return { result: true, message: `pet was saved` };
 	} catch (err) {
 		return err;
 	}
@@ -208,3 +211,17 @@ const getUsersPets = async (id) => {
 	}
 };
 exports.getUsersPets = getUsersPets;
+
+const isPetSaved = async (userId, petId) => {
+	try {
+		const queryResult = await query(
+			SQL`SELECT * FROM saved_pets WHERE owner_id = ${+userId} AND pet_id = ${+petId};`
+		);
+		let result = true;
+		if (queryResult.length === 0) result = false;
+		return { result: result, message: `pet was saved` };
+	} catch (err) {
+		return err;
+	}
+};
+exports.isPetSaved = isPetSaved;

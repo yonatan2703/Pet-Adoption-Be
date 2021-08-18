@@ -17,11 +17,12 @@ const {
 	removedSavedPet,
 	uploadPetPic,
 	getUsersPets,
+	isPetSaved,
 } = require("../data/petsDb");
 const { urlFromCloudinary } = require("../middlewares/urlFromCloudinary");
 const { upload } = require("../lib/uploadFiles");
 
-/* GET pets listing. */
+// search pets
 router.get("/", async (req, res, next) => {
 	try {
 		const petsList = await getPets(req.query);
@@ -90,7 +91,7 @@ router.post(
 router.post("/:id/return", authenticate(), async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const result = await returnPet(id);
+		const result = await returnPet(id); 
 		res.send(result);
 	} catch (error) {
 		next(error);
@@ -140,10 +141,22 @@ router.put(
 );
 
 // get pets by user id
-router.get("/user/:id", async (req, res, next) => {
+router.get("/user/:id", authenticate(), async (req, res, next) => {
 	const { id } = req.params;
 	try {
 		const petResult = await getUsersPets(id);
+		res.send(petResult);
+	} catch (error) {
+		next(error);
+	}
+});
+
+// is pet saved by user
+router.get("/:id/saved", authenticate(), async (req, res, next) => {
+	const { id } = req.params;
+	const { userId } = req.decoded;
+	try {
+		const petResult = await isPetSaved(userId, id);
 		res.send(petResult);
 	} catch (error) {
 		next(error);
