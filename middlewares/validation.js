@@ -1,5 +1,7 @@
 const Ajv = require("ajv").default;
 const ajv = new Ajv();
+const addFormats = require("ajv-formats");
+addFormats(ajv);
 
 module.exports.validationMid = (schema) => {
 	return (req, res, next) => {

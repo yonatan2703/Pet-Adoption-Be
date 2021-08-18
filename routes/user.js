@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const { updateUserValidation } = require("../middlewares/usersValidation.js");
-const S = require("fluent-json-schema");
 const {
 	getAllUsers,
 	makeAdmin,

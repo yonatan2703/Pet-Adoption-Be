@@ -50,12 +50,12 @@ const loginUser = (email, password) => {
 					reject(err);
 				} else {
 					if (logged) {
-						const { password, role, ...rest } = user;
+						const { password, ...rest } = user;
 						resolve({
 							logged: true,
 							message: "you have logged in",
 							token: sign({ userId: user.user_id }),
-							data: rest,
+							user: rest,
 						});
 					}
 					reject({
@@ -107,9 +107,9 @@ const getUserById = async (userId) => {
 			SQL`SELECT * FROM users WHERE user_id = ${userId};`
 		);
 		if (queryResult) {
-			const { password, role, ...rest } = queryResult;
+			const { password, ...rest } = queryResult;
 			return {
-				data: rest,
+				user: rest,
 				message: "user's details",
 			};
 		} else {
@@ -125,6 +125,7 @@ exports.getUserById = getUserById;
 
 const updateUser = async (userId, userData) => {
 	const { email, password, fName, lName, phone, bio } = userData;
+
 	const [result] = await query(
 		SQL`SELECT * FROM users WHERE email = ${email} AND email <> (SELECT email FROM users WHERE user_id = ${userId});`
 	);
@@ -138,8 +139,12 @@ const updateUser = async (userId, userData) => {
 			const queryResult = await query(
 				SQL`UPDATE users SET email = ${email} , first_name = ${fName}, last_name = ${lName}, phone = ${phone}, bio = ${bio} WHERE user_id = ${userId};`
 			);
+			const [user] = await query(
+				SQL`SELECT * FROM users WHERE user_id = ${userId}`
+			);
+			const { password, ...rest } = user;
 			return {
-				result: queryResult,
+				user: rest,
 				message: "updated the user",
 			};
 		} catch (err) {
@@ -155,8 +160,12 @@ const updateUser = async (userId, userData) => {
 					const queryResult = await query(
 						SQL`UPDATE users SET email = ${email} ,password = ${hash}, first_name = ${fName}, last_name = ${lName}, phone = ${phone}, bio = ${bio} WHERE user_id = ${userId};`
 					);
+					const [user] = await query(
+						SQL`SELECT * FROM users WHERE user_id = ${userId}`
+					);
+					const { password, ...rest } = user;
 					resolve({
-						result: queryResult,
+						user: rest,
 						message: "updated the user",
 					});
 				} catch (err) {

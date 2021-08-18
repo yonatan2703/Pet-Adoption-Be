@@ -9,11 +9,11 @@ const getPets = async (params) => {
 		if (params.type) {
 			updates.push(SQL`type = ${params.type}`);
 		}
-		if (params.adoptionStatus) {
-			updates.push(SQL`adoption_status = ${params.adoptionStatus}`);
+		if (params.adoption_status) {
+			updates.push(SQL`adoption_status = ${params.adoption_status}`);
 		}
 		if (params.name) {
-			updates.push(SQL`name = ${params.name}`);
+			updates.push(SQL`name LIKE ${"%" + params.name + "%"}`);
 		}
 		if (params.minHeight) {
 			updates.push(SQL`height >= ${+params.minHeight}`);
@@ -46,19 +46,18 @@ const addPet = async (pet) => {
 	const {
 		type,
 		name,
-		adoptionStatus,
+		adoption_status,
 		height,
 		weight,
 		color,
-		imageAlt,
 		bio,
-		dietaryRestrictions,
+		dietary_restrictions,
 		hypoallergenic,
 		breed,
 	} = pet;
 	try {
 		const queryResult = await query(
-			SQL`INSERT INTO pets (type, name, adoption_status, height, weight, color, bio, hypoallergenic, dietary_restrictions, breed, owner_id, image_alt) VALUES (${type}, ${name}, ${adoptionStatus}, ${+height}, ${+weight}, ${color}, ${bio}, ${hypoallergenic}, ${dietaryRestrictions}, ${breed}, null, ${imageAlt});`
+			SQL`INSERT INTO pets (type, name, adoption_status, height, weight, color, bio, hypoallergenic, dietary_restrictions, breed, owner_id, image_alt) VALUES (${type}, ${name}, ${adoption_status}, ${+height}, ${+weight}, ${color}, ${bio}, ${hypoallergenic}, ${dietary_restrictions}, ${breed}, null, "No pet picture found");`
 		);
 		return { result: queryResult, message: "pet added" };
 	} catch (err) {
@@ -75,7 +74,7 @@ const getPetById = async (id) => {
 		if (queryResult.length === 1)
 			return {
 				ok: true,
-				result: queryResult[0],
+				pet: queryResult[0],
 			};
 		throw {
 			ok: false,
@@ -91,19 +90,18 @@ const editPetById = async (id, pet) => {
 	const {
 		type,
 		name,
-		adoptionStatus,
+		adoption_status,
 		height,
 		weight,
 		color,
-		imageAlt,
 		bio,
-		dietaryRestrictions,
+		dietary_restrictions,
 		hypoallergenic,
 		breed,
 	} = pet;
 	try {
 		const queryResult = await query(
-			SQL`UPDATE pets SET type = "${type}", name = "${name}", adoption_status = "${adoptionStatus}", height = ${+height}, weight = ${+weight}, color = "${color}", bio = "${bio}", hypoallergenic = ${hypoallergenic}, dietary_restrictions = "${dietaryRestrictions}", breed = "${breed}", image_alt = "${imageAlt}" WHERE pet_id = ${+id};`
+			SQL`UPDATE pets SET type = ${type}, name = ${name}, adoption_status = ${adoption_status}, height = ${+height}, weight = ${+weight}, color = ${color}, bio = ${bio}, hypoallergenic = ${hypoallergenic}, dietary_restrictions = ${dietary_restrictions}, breed = ${breed}, image_alt = "No pet picture found" WHERE pet_id = ${+id};`
 		);
 
 		return { result: queryResult, message: "pet updated" };
@@ -114,7 +112,7 @@ const editPetById = async (id, pet) => {
 exports.editPetById = editPetById;
 
 const adoptFosterPet = async (id, req, userId) => {
-	const { adoptionStatus } = req;
+	const { adoption_status } = req;
 	try {
 		const queryResult = await query(
 			SQL`SELECT adoption_status FROM pets WHERE pet_id = ${+id};`
@@ -126,10 +124,10 @@ const adoptFosterPet = async (id, req, userId) => {
 	}
 	try {
 		const queryResult = await query(
-			SQL`UPDATE pets SET owner_id = ${userId}, adoption_status = ${adoptionStatus} WHERE pet_id = ${id};`
+			SQL`UPDATE pets SET owner_id = ${userId}, adoption_status = ${adoption_status} WHERE pet_id = ${id};`
 		);
 
-		return { result: queryResult, message: `pet ${adoptionStatus}` };
+		return { result: queryResult, message: `pet ${adoption_status}` };
 	} catch (err) {
 		return err;
 	}
@@ -184,7 +182,7 @@ const uploadPetPic = async (id, imageUrl) => {
 			SQL`UPDATE pets SET image_url = ${imageUrl} WHERE pet_id = ${id};`
 		);
 
-		return { result: queryResult, message: `pet image was updated` };
+		return { result: imageUrl, message: `pet image was updated` };
 	} catch (err) {
 		return err;
 	}
