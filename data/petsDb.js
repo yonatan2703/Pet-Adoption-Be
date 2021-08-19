@@ -1,6 +1,7 @@
 const { query, SQL } = require("./db");
 
 const getPets = async (params) => {
+    console.log(params)
 	const updates = [];
 	const where = [];
 	// checking if params is empty
