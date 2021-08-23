@@ -20,7 +20,7 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 			SQL`SELECT email FROM users WHERE email = ${email};`
 		);
 		if (emailCheck.length) {
-			res.status(400).send("email already taken");
+			res.status(400).send("wrong email or password");
 			return;
 		}
 		try {
