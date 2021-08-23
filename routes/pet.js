@@ -48,17 +48,6 @@ router.post(
 	}
 );
 
-// get pet by id
-router.get("/:id", async (req, res, next) => {
-	const { id } = req.params;
-	try {
-		const petResult = await getPetById(id);
-		res.send(petResult);
-	} catch (error) {
-		next(error);
-	}
-});
-
 // edit pet
 router.put("/:id", authenticate(), adminCheck(), async (req, res, next) => {
 	const { id } = req.params;
@@ -173,6 +162,17 @@ router.get("/:id/saved", authenticate(), async (req, res, next) => {
 	const { userId } = req.decoded;
 	try {
 		const petResult = await isPetSaved(userId, id);
+		res.send(petResult);
+	} catch (error) {
+		next(error);
+	}
+});
+
+// get pet by id
+router.get("/:id", async (req, res, next) => {
+	const { id } = req.params;
+	try {
+		const petResult = await getPetById(id);
 		res.send(petResult);
 	} catch (error) {
 		next(error);
