@@ -3,10 +3,10 @@ const SQL = require("@nearform/sql");
 exports.SQL = SQL;
 
 const db = mysql.createConnection({
-	host: "localhost",
-	user: "root",
-	password: "27031997",
-	database: "petShop",
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASS,
+	database: "sql11432387",
 });
 
 db.connect((err) => {

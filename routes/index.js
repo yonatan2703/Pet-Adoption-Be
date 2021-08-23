@@ -25,7 +25,6 @@ router.post("/signup", signUpValidation(), async (req, res, next) => {
 		}
 		try {
 			const queryResult = await addUser(req.body);
-			console.log(queryResult);
 			res.send(queryResult);
 		} catch (err) {
 			next(err);
