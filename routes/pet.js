@@ -91,7 +91,7 @@ router.post(
 router.post("/:id/return", authenticate(), async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const result = await returnPet(id); 
+		const result = await returnPet(id);
 		res.send(result);
 	} catch (error) {
 		next(error);
@@ -141,10 +141,26 @@ router.put(
 );
 
 // get pets by user id
-router.get("/user/:id", authenticate(), async (req, res, next) => {
-	const { id } = req.params;
+router.get(
+	"/user/:id",
+	authenticate(),
+	adminCheck(),
+	async (req, res, next) => {
+		const { id } = req.params;
+		try {
+			const petResult = await getUsersPets(id);
+			res.send(petResult);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+// get pets by user
+router.get("/user", authenticate(), async (req, res, next) => {
+	const { userId } = req.decoded;
 	try {
-		const petResult = await getUsersPets(id);
+		const petResult = await getUsersPets(userId);
 		res.send(petResult);
 	} catch (error) {
 		next(error);

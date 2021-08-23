@@ -57,7 +57,7 @@ router.put(
 );
 
 // get a user by id
-router.get("/:id", authenticate(), async (req, res, next) => {
+router.get("/:id", authenticate(), adminCheck(), async (req, res, next) => {
 	try {
 		const { id } = req.params;
 		const result = await getUserById(id);
@@ -67,11 +67,23 @@ router.get("/:id", authenticate(), async (req, res, next) => {
 	}
 });
 
-// update user
+// get a user
+router.get("/", authenticate(), async (req, res, next) => {
+	try {
+		const { userId } = req.decoded;
+		const result = await getUserById(userId);
+		res.send(result);
+	} catch (error) {
+		next(error);
+	}
+});
+
+// update user by id
 router.put(
 	"/:id",
 	updateUserValidation(),
 	authenticate(),
+	adminCheck(),
 	async (req, res, next) => {
 		try {
 			const { id } = req.params;
@@ -83,12 +95,45 @@ router.put(
 	}
 );
 
+// update user
+router.put(
+	"/",
+	updateUserValidation(),
+	authenticate(),
+	async (req, res, next) => {
+		try {
+			const { userId } = req.decoded;
+			const result = await updateUser(userId, req.body);
+			res.send(result);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
 // get a user full details by id
-router.get("/:id/full", authenticate(), async (req, res, next) => {
+router.get(
+	"/:id/full",
+	authenticate(),
+	adminCheck(),
+	async (req, res, next) => {
+		try {
+			const { id } = req.params;
+			const userData = await getUserById(id);
+			const userPets = await getUsersPets(id);
+			res.send({ userData, userPets });
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+// get a user full details
+router.get("/full", authenticate(), async (req, res, next) => {
 	try {
-		const { id } = req.params;
-		const userData = await getUserById(id);
-		const userPets = await getUsersPets(id);
+		const { userId } = req.decoded;
+		const userData = await getUserById(userId);
+		const userPets = await getUsersPets(userId);
 		res.send({ userData, userPets });
 	} catch (error) {
 		next(error);
