@@ -44,7 +44,7 @@ const loginUser = (email, password) => {
 			const [user] = await query(
 				SQL`SELECT * FROM users WHERE email = ${email};`
 			);
-			if (!user) reject({ logged: false, message: "wrong email" });
+			if (!user) reject({ message: "wrong email" });
 			bcrypt.compare(password, user.password, (err, logged) => {
 				if (err) {
 					reject(err);
@@ -52,14 +52,12 @@ const loginUser = (email, password) => {
 					if (logged) {
 						const { password, ...rest } = user;
 						resolve({
-							logged: true,
 							message: "you have logged in",
 							token: sign({ userId: user.user_id }),
 							user: rest,
 						});
 					}
 					reject({
-						logged: false,
 						message: "wrong password",
 					});
 				}

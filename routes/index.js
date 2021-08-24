@@ -52,7 +52,6 @@ router.get("/login", authenticate(), async (req, res, next) => {
 		);
 		const { password, ...rest } = user;
 		res.send({
-			logged: true,
 			message: "you have logged in",
 			user: rest,
 		});
